@@ -89,9 +89,13 @@ func (e *Editor) handleContentClick(sx, contentRow, contentWidth int) {
 func (e *Editor) scrollUp(n int) {
 	buf := e.currentBuffer()
 	buf.topLine = clamp(buf.topLine-n, 0, len(buf.lines)-1)
+	buf.cursor.Row = clamp(buf.cursor.Row-n, 0, len(buf.lines)-1)
+	buf.cursor.Col = clamp(buf.cursor.Col, 0, len(buf.lines[buf.cursor.Row]))
 }
 
 func (e *Editor) scrollDown(n int) {
 	buf := e.currentBuffer()
 	buf.topLine = clamp(buf.topLine+n, 0, len(buf.lines)-1)
+	buf.cursor.Row = clamp(buf.cursor.Row+n, 0, len(buf.lines)-1)
+	buf.cursor.Col = clamp(buf.cursor.Col, 0, len(buf.lines[buf.cursor.Row]))
 }
