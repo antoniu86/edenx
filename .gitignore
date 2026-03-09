@@ -1,0 +1,11 @@
+CLAUDE.md
+
+# Build output
+eden
+dist/
+
+# Debian package
+*.deb
+
+# Test/scratch files
+*.ednx
