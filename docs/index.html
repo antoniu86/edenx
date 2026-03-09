@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>EdenX — Fast, Minimal Terminal Text Editor with Encryption</title>
+  <meta name="description" content="EdenX (eden) is a fast, minimal terminal text editor written in Go with built-in AES-256-GCM encrypted file support (.ednx), syntax highlighting, regex search, mouse support, and more." />
+  <meta name="keywords" content="terminal text editor, encrypted text editor, go editor, cli editor, ednx, eden editor, minimal editor, linux editor, syntax highlighting" />
+  <meta name="author" content="Temian Antoniu Mihai" />
+  <link rel="canonical" href="https://edenx.dev" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://edenx.dev" />
+  <meta property="og:title" content="EdenX — Terminal Text Editor with Encryption" />
+  <meta property="og:description" content="A fast, minimal terminal text editor written in Go with AES-256-GCM encryption, syntax highlighting, regex search, mouse support, and 5 themes." />
+  <meta property="og:image" content="https://edenx.dev/og-image.png" />
+  <meta property="og:site_name" content="EdenX" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://edenx.dev" />
+  <meta name="twitter:title" content="EdenX — Terminal Text Editor with Encryption" />
+  <meta name="twitter:description" content="Fast, minimal terminal text editor written in Go with AES-256-GCM encryption, syntax highlighting, regex search, and mouse support." />
+  <meta name="twitter:image" content="https://edenx.dev/og-image.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "EdenX",
+    "alternateName": "eden",
+    "description": "A fast, minimal terminal text editor written in Go with built-in AES-256-GCM encrypted file support (.ednx format). Features syntax highlighting for 16 languages, regex search and replace, mouse support, multi-tab editing, bracket matching, soft word wrap, auto-indent, 5 colour themes, undo/redo, and a file navigator.",
+    "url": "https://edenx.dev",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Linux, macOS, Windows",
+    "programmingLanguage": "Go",
+    "codeRepository": "https://github.com/antoniu86/edenx",
+    "author": {
+      "@type": "Person",
+      "name": "Temian Antoniu Mihai",
+      "email": "antoniu@temian.ro",
+      "url": "https://github.com/antoniu86"
+    },
+    "license": "https://opensource.org/licenses/MIT"
+  }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Monokai Palette ─────────────────────────────────── */
+    :root {
+      --bg:        #272822;
+      --bg2:       #1e1f1a;
+      --bg3:       #3e3d32;
+      --panel:     #2d2e27;
+      --border:    #49483e;
+      --fg:        #F8F8F2;
+      --fg2:       #75715E;
+      --green:     #A6E22E;
+      --yellow:    #E6DB74;
+      --orange:    #FD971F;
+      --red:       #F92672;
+      --purple:    #AE81FF;
+      --cyan:      #66D9E8;
+    }
+
+    /* ── Reset ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Scanlines overlay ───────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Typography ──────────────────────────────────────── */
+    h1, h2, h3 {
+      font-family: 'Press Start 2P', monospace;
+      line-height: 1.4;
+    }
+
+    a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    a:hover { color: var(--green); text-decoration: underline; }
+
+    code, .code {
+      font-family: 'VT323', monospace;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      color: var(--yellow);
+      font-size: 0.95em;
+    }
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section { padding: 72px 0; }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg2);
+      border-bottom: 2px solid var(--green);
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      padding-bottom: 14px;
+    }
+
+    .nav-logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--green);
+      letter-spacing: 2px;
+    }
+    .nav-logo span { color: var(--fg2); }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      font-size: 16px;
+    }
+
+    .nav-links a {
+      color: var(--fg);
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--green); text-decoration: none; }
+
+    /* ── Hero ────────────────────────────────────────────── */
+    #hero {
+      padding: 96px 0 72px;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 5vw, 52px);
+      color: var(--green);
+      text-shadow: 0 0 20px rgba(166,226,46,0.4);
+      margin-bottom: 16px;
+      letter-spacing: 4px;
+    }
+
+    .hero-tagline {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(9px, 1.5vw, 12px);
+      color: var(--yellow);
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    .hero-desc {
+      font-size: 22px;
+      color: var(--fg2);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 64px;
+    }
+
+    .btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      padding: 14px 24px;
+      border: 2px solid currentColor;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+      display: inline-block;
+      letter-spacing: 1px;
+      image-rendering: pixelated;
+    }
+
+    .btn-primary {
+      color: var(--bg);
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--green);
+      box-shadow: 0 0 12px rgba(166,226,46,0.5);
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      color: var(--cyan);
+      background: transparent;
+      border-color: var(--cyan);
+    }
+    .btn-secondary:hover {
+      background: var(--cyan);
+      color: var(--bg);
+      box-shadow: 0 0 12px rgba(102,217,232,0.4);
+      text-decoration: none;
+    }
+
+    /* ── Terminal mockup ─────────────────────────────────── */
+    .terminal {
+      background: var(--bg2);
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: left;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    .terminal-bar {
+      background: var(--bg3);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 0;
+      display: inline-block;
+    }
+
+    .dot-red    { background: var(--red); }
+    .dot-yellow { background: var(--yellow); }
+    .dot-green  { background: var(--green); }
+
+    .terminal-title {
+      font-family: 'VT323', monospace;
+      font-size: 18px;
+      color: var(--fg2);
+      margin-left: 8px;
+    }
+
+    .terminal-body {
+      padding: 20px 24px;
+      font-size: 18px;
+      line-height: 1.7;
+      min-height: 260px;
+    }
+
+    .t-tabbar {
+      background: var(--bg3);
+      padding: 4px 0;
+      margin: -20px -24px 16px;
+      padding: 6px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 16px;
+    }
+
+    .t-tab-active {
+      background: var(--bg2);
+      color: var(--fg);
+      padding: 2px 10px;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      display: inline-block;
+    }
+
+    .t-tab {
+      color: var(--fg2);
+      padding: 2px 10px;
+      display: inline-block;
+    }
+
+    .t-linenum { color: var(--fg2); display: inline-block; width: 42px; }
+    .t-keyword { color: var(--red); }
+    .t-func    { color: var(--green); }
+    .t-str     { color: var(--yellow); }
+    .t-comment { color: var(--fg2); font-style: italic; }
+    .t-type    { color: var(--cyan); }
+    .t-num     { color: var(--purple); }
+
+    .t-statusbar {
+      background: var(--bg3);
+      padding: 4px 24px;
+      margin: 16px -24px -20px;
+      border-top: 1px solid var(--border);
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--fg);
+    }
+    .t-statusbar .status-right { color: var(--fg2); }
+
+    .t-cursor {
+      display: inline-block;
+      width: 10px;
+      height: 1em;
+      background: var(--green);
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* ── Section heading ─────────────────────────────────── */
+    .section-heading {
+      font-size: clamp(12px, 2vw, 18px);
+      color: var(--green);
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    .section-sub {
+      font-size: 22px;
+      color: var(--fg2);
+      margin-bottom: 48px;
+    }
+
+    /* ── Features grid ───────────────────────────────────── */
+    #features { background: var(--bg2); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 28px 24px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 16px rgba(166,226,46,0.15);
+    }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .feature-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--green);
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .feature-desc {
+      font-size: 18px;
+      color: var(--fg2);
+      line-height: 1.5;
+    }
+
+    /* ── Install ─────────────────────────────────────────── */
+    .code-block {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--green);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    .code-block .prompt { color: var(--green); user-select: none; }
+    .code-block .cmd    { color: var(--fg); }
+    .code-block .arg    { color: var(--yellow); }
+    .code-block .comment { color: var(--fg2); }
+
+    /* ── Shortcuts ───────────────────────────────────────── */
+    #shortcuts { background: var(--bg2); }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 40px;
+    }
+
+    .shortcut-group h3 {
+      font-size: 10px;
+      color: var(--orange);
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .shortcut-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(73,72,62,0.4);
+      gap: 16px;
+    }
+
+    .shortcut-row:last-child { border-bottom: none; }
+
+    .key {
+      font-family: 'VT323', monospace;
+      font-size: 17px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-bottom: 3px solid var(--border);
+      padding: 2px 8px;
+      color: var(--yellow);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .shortcut-desc {
+      font-size: 18px;
+      color: var(--fg2);
+      text-align: right;
+    }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    footer {
+      background: var(--bg2);
+      border-top: 2px solid var(--border);
+      padding: 40px 0;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .footer-logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+
+    footer p { color: var(--fg2); margin-bottom: 8px; }
+    footer a { color: var(--cyan); }
+
+    /* ── Divider ─────────────────────────────────────────── */
+    .pixel-divider {
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--green) 0px, var(--green) 8px,
+        transparent 8px, transparent 16px
+      );
+      opacity: 0.4;
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .terminal-body { font-size: 15px; min-height: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────── -->
+<nav>
+  <div class="container">
+    <div class="nav-logo">&gt;_ eden<span>x</span></div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#shortcuts">Shortcuts</a></li>
+      <li><a href="https://github.com/antoniu86" target="_blank" rel="noopener">@antoniu86</a></li>
+      <li><a href="https://github.com/antoniu86/edenx" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ───────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="container">
+    <h1 class="hero-title">EDEN X</h1>
+    <p class="hero-tagline">fast &nbsp;·&nbsp; minimal &nbsp;·&nbsp; encrypted</p>
+    <p class="hero-desc">
+      A terminal text editor written in Go.
+      Edit any file. Encrypt any secret.
+      No dependencies, no noise.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#install" class="btn btn-primary">Get Started</a>
+      <a href="https://github.com/antoniu86/edenx" target="_blank" rel="noopener" class="btn btn-secondary">View on GitHub</a>
+    </div>
+
+    <!-- Terminal mockup -->
+    <div class="terminal" role="img" aria-label="EdenX editor screenshot mockup">
+      <div class="terminal-bar">
+        <span class="terminal-dot dot-red"></span>
+        <span class="terminal-dot dot-yellow"></span>
+        <span class="terminal-dot dot-green"></span>
+        <span class="terminal-title">eden — secrets.ednx</span>
+      </div>
+      <div class="terminal-body">
+        <div class="t-tabbar">
+          <span class="t-tab-active">[enc] secrets.ednx</span>
+          <span class="t-tab">│</span>
+          <span class="t-tab">main.go</span>
+        </div>
+
+        <div><span class="t-linenum">   1 </span><span class="t-keyword">package</span> <span class="t-type">config</span></div>
+        <div><span class="t-linenum">   2 </span></div>
+        <div><span class="t-linenum">   3 </span><span class="t-comment">// Database credentials</span></div>
+        <div><span class="t-linenum">   4 </span><span class="t-keyword">const</span> <span class="t-func">DBPassword</span> = <span class="t-str">"hunter2"</span></div>
+        <div><span class="t-linenum">   5 </span><span class="t-keyword">const</span> <span class="t-func">APIKey</span>    = <span class="t-str">"sk-proj-..."</span></div>
+        <div><span class="t-linenum">   6 </span></div>
+        <div><span class="t-linenum">   7 </span><span class="t-keyword">var</span> <span class="t-func">Endpoints</span> = []<span class="t-type">string</span>{<span class="t-cursor"></span></div>
+
+        <div class="t-statusbar">
+          <span>[enc] secrets.ednx &nbsp; 7:32 &nbsp; [monokai]</span>
+          <span class="status-right">Ctrl+S=save &nbsp; Ctrl+E=encrypt &nbsp; Ctrl+Q=close &nbsp; F1=help</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pixel-divider"></div>
+
+<!-- ── Features ───────────────────────────────────────────── -->
+<section id="features">
+  <div class="container">
+    <h2 class="section-heading">// Features</h2>
+    <p class="section-sub">Everything you need. Nothing you don't.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🔐</span>
+        <div class="feature-title">AES-256 Encryption</div>
+        <p class="feature-desc">
+          Save any file as <code>.ednx</code> — encrypted with AES-256-GCM
+          and Argon2id key derivation. Press <code>Ctrl+E</code>.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">✨</span>
+        <div class="feature-title">Syntax Highlighting</div>
+        <p class="feature-desc">
+          Regex-based highlighting for 16 languages: Go, Python, JS/TS, Rust,
+          C/C++, Ruby, PHP, HTML, XML, CSS/SCSS, JSON, YAML, TOML, Markdown, Shell, Makefile.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">📑</span>
+        <div class="feature-title">Multi-Tab Editing</div>
+        <p class="feature-desc">
+          Open multiple files as tabs. Switch with <code>Alt+←/→</code>,
+          create with <code>Ctrl+T</code>, close with <code>Ctrl+W</code>.
+          Click tabs with the mouse.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">🔍</span>
+        <div class="feature-title">Search &amp; Replace</div>
+        <p class="feature-desc">
+          Incremental search (<code>Ctrl+F</code>) and replace (<code>Ctrl+R</code>).
+          Toggle case sensitivity (<code>Ctrl+I</code>) or full regex mode
+          (<code>Ctrl+G</code>) with <code>$1</code> capture groups in replacements.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">🖱️</span>
+        <div class="feature-title">Mouse Support</div>
+        <p class="feature-desc">
+          Click anywhere to position the cursor. Scroll with the mouse wheel.
+          Click the tab bar to switch buffers. Works alongside all keyboard shortcuts.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">🎨</span>
+        <div class="feature-title">5 Colour Themes</div>
+        <p class="feature-desc">
+          default, green, dark, light, monokai.
+          Cycle live with <code>F2</code>. Persisted to
+          <code>~/.config/eden/config.json</code>.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">✏️</span>
+        <div class="feature-title">Smart Editing</div>
+        <p class="feature-desc">
+          Auto-indent, soft word wrap, bracket matching highlight,
+          word-by-word navigation (<code>Ctrl+←/→</code>),
+          duplicate line (<code>Ctrl+D</code>), move line (<code>Alt+↑/↓</code>).
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">↩</span>
+        <div class="feature-title">Undo / Redo</div>
+        <p class="feature-desc">
+          Full-snapshot undo stack (<code>Ctrl+Z</code> / <code>Ctrl+Y</code>)
+          with 100-entry cap. Works across multi-line edits, pastes, and line operations.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">📁</span>
+        <div class="feature-title">File Navigator &amp; Read-Only</div>
+        <p class="feature-desc">
+          Browse and open files without leaving the editor (<code>Ctrl+N</code>).
+          Open files safely with <code>eden -r file</code> or toggle
+          read-only at any time with <code>F3</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pixel-divider"></div>
+
+<!-- ── Install ─────────────────────────────────────────────── -->
+<section id="install">
+  <div class="container">
+    <h2 class="section-heading">// Install</h2>
+    <p class="section-sub">Build from source in seconds.</p>
+
+    <div class="code-block">
+      <div><span class="comment"># Clone the repo</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">git clone</span> <span class="arg">https://github.com/antoniu86/edenx</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">cd</span> <span class="arg">edenx</span></div>
+    </div>
+
+    <div class="code-block">
+      <div><span class="comment"># Build and install</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">make</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">make install</span> &nbsp;<span class="comment"># copies eden to /usr/local/bin</span></div>
+    </div>
+
+    <div class="code-block">
+      <div><span class="comment"># Usage</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">eden</span> <span class="arg">file.txt</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">eden</span> <span class="arg">secrets.ednx</span> &nbsp;<span class="comment"># opens encrypted file</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">eden</span> <span class="arg">--theme monokai</span> <span class="arg">notes.md</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">eden</span> <span class="arg">-r</span> <span class="arg">file.txt</span> &nbsp;<span class="comment"># open read-only</span></div>
+      <div><span class="prompt">$ </span><span class="cmd">eden</span> <span class="arg">--help</span></div>
+    </div>
+
+    <p style="color: var(--fg2); font-size: 18px;">
+      Requires <a href="https://go.dev" target="_blank" rel="noopener">Go 1.21+</a>.
+      Dependencies are fetched automatically via <code>go mod tidy</code>.
+    </p>
+  </div>
+</section>
+
+<div class="pixel-divider"></div>
+
+<!-- ── Shortcuts ──────────────────────────────────────────── -->
+<section id="shortcuts">
+  <div class="container">
+    <h2 class="section-heading">// Shortcuts</h2>
+    <p class="section-sub">Everything at your fingertips.</p>
+
+    <div class="shortcuts-grid">
+      <div class="shortcut-group">
+        <h3>FILE</h3>
+        <div class="shortcut-row"><span class="key">Ctrl+S</span><span class="shortcut-desc">Save</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+E</span><span class="shortcut-desc">Save encrypted (.ednx)</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+Q</span><span class="shortcut-desc">Quit</span></div>
+      </div>
+
+      <div class="shortcut-group">
+        <h3>EDIT</h3>
+        <div class="shortcut-row"><span class="key">Ctrl+Z / Ctrl+Y</span><span class="shortcut-desc">Undo / Redo</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+A</span><span class="shortcut-desc">Select all</span></div>
+        <div class="shortcut-row"><span class="key">Shift+Arrow</span><span class="shortcut-desc">Extend selection</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+C</span><span class="shortcut-desc">Copy selection</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+X</span><span class="shortcut-desc">Cut selection</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+V</span><span class="shortcut-desc">Paste</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+D</span><span class="shortcut-desc">Duplicate line</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+K</span><span class="shortcut-desc">Delete to end of line</span></div>
+        <div class="shortcut-row"><span class="key">Alt+↑ / Alt+↓</span><span class="shortcut-desc">Move line up / down</span></div>
+      </div>
+
+      <div class="shortcut-group">
+        <h3>NAVIGATION</h3>
+        <div class="shortcut-row"><span class="key">Arrow keys</span><span class="shortcut-desc">Move cursor</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+← / Ctrl+→</span><span class="shortcut-desc">Jump word left / right</span></div>
+        <div class="shortcut-row"><span class="key">Home / End</span><span class="shortcut-desc">Start / end of line</span></div>
+        <div class="shortcut-row"><span class="key">PgUp / PgDn</span><span class="shortcut-desc">Scroll by page</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+J</span><span class="shortcut-desc">Jump to line number</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+T</span><span class="shortcut-desc">New tab</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+W</span><span class="shortcut-desc">Close tab</span></div>
+        <div class="shortcut-row"><span class="key">Alt+← / Alt+→</span><span class="shortcut-desc">Switch tabs</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+N</span><span class="shortcut-desc">File navigator</span></div>
+      </div>
+
+      <div class="shortcut-group">
+        <h3>SEARCH &amp; REPLACE</h3>
+        <div class="shortcut-row"><span class="key">Ctrl+F</span><span class="shortcut-desc">Search</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+R</span><span class="shortcut-desc">Search &amp; Replace</span></div>
+        <div class="shortcut-row"><span class="key">↑ / ↓</span><span class="shortcut-desc">Previous / next match</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+I</span><span class="shortcut-desc">Toggle case-insensitive</span></div>
+        <div class="shortcut-row"><span class="key">Ctrl+G</span><span class="shortcut-desc">Toggle regex mode</span></div>
+        <div class="shortcut-row"><span class="key">y / n / a</span><span class="shortcut-desc">Replace / skip / replace all</span></div>
+      </div>
+
+      <div class="shortcut-group">
+        <h3>VIEW</h3>
+        <div class="shortcut-row"><span class="key">F1</span><span class="shortcut-desc">In-editor help overlay</span></div>
+        <div class="shortcut-row"><span class="key">F2</span><span class="shortcut-desc">Cycle theme</span></div>
+        <div class="shortcut-row"><span class="key">F3</span><span class="shortcut-desc">Toggle read-only mode</span></div>
+      </div>
+
+      <div class="shortcut-group">
+        <h3>CONFIG</h3>
+        <div class="shortcut-row">
+          <span style="font-size:17px; color: var(--fg2);">~/.config/eden/config.json</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="key">theme</span>
+          <span class="shortcut-desc">default, green, dark, light, monokai</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="key">tab_width</span>
+          <span class="shortcut-desc">spaces per tab (default: 4)</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="key">expand_tabs</span>
+          <span class="shortcut-desc">spaces instead of \t (default: true)</span>
+        </div>
+        <div class="shortcut-row">
+          <span style="font-size:17px; color: var(--yellow);">{"theme": "dark", "tab_width": 4}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pixel-divider"></div>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">&gt;_ edenx</div>
+    <p>Built by <a href="https://github.com/antoniu86" target="_blank" rel="noopener">Temian Antoniu Mihai</a>
+       &nbsp;·&nbsp; <a href="mailto:antoniu@temian.ro">antoniu@temian.ro</a></p>
+    <p>
+      <a href="https://github.com/antoniu86/edenx" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp; MIT License
+    </p>
+    <p style="margin-top: 16px; font-size: 16px; color: #49483e;">
+      &copy; 2026 edenx.dev
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

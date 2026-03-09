@@ -1,0 +1,17 @@
+Package: eden
+Version: 0.1.0
+Section: editors
+Priority: optional
+Architecture: amd64
+Maintainer: EdenX <hello@edenx.dev>
+Homepage: https://edenx.dev
+Description: EdenX terminal text editor
+ A fast, minimal terminal text editor with support for encrypted files.
+ .
+ Features include:
+  - AES-256-GCM encrypted file format (.ednx)
+  - Multi-buffer tabbed editing
+  - Incremental search and replace
+  - File navigator overlay
+  - Multiple color themes
+  - System clipboard integration
