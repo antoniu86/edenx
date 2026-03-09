@@ -10,8 +10,10 @@ Description: EdenX terminal text editor
  .
  Features include:
   - AES-256-GCM encrypted file format (.ednx)
+  - Syntax highlighting for 16 languages
+  - Mouse support (click, scroll, tab bar)
   - Multi-buffer tabbed editing
-  - Incremental search and replace
+  - Incremental search and replace with regex
   - File navigator overlay
   - Multiple color themes
   - System clipboard integration
