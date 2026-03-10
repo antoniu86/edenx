@@ -11,7 +11,7 @@ A fast, minimal terminal text editor with built-in encrypted file support.
 - Incremental search and replace with regex support and capture group expansion
 - Multi-buffer tabbed editing
 - Single-panel file navigator
-- 5 color themes (including terminal default inheritance)
+- 8 color themes (including terminal default inheritance)
 - Soft word wrap, auto-indent, configurable tab width
 - Bracket matching highlight
 - Mouse support — click to position, scroll, click tabs
@@ -30,7 +30,7 @@ make && make install
 **Debian/Ubuntu (.deb):**
 ```bash
 make deb
-sudo apt install ./eden_0.1.0_amd64.deb
+sudo apt install ./eden_0.6.0_amd64.deb
 ```
 
 ## Usage
@@ -112,7 +112,7 @@ eden --help               # show all options and shortcuts
 }
 ```
 
-Themes: `default`, `green`, `dark`, `light`, `monokai`
+Themes: `default`, `monokai`, `ocean`, `solarized`, `rose`, `green`, `dark`, `light`
 
 Tab behaviour:
 - `tab_width` — visual width of a tab / spaces inserted (default: `4`)

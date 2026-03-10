@@ -9,14 +9,18 @@ import (
 	"edenx.dev/eden/internal/editor"
 )
 
-const helpText = `EdenX — a fast, minimal terminal text editor with encrypted file support.
+// Version is set at build time via -ldflags "-X main.Version=..."
+var Version = "dev"
+
+const helpText = `EdenX v%s — a fast, minimal terminal text editor with encrypted file support.
 Author: Temian Antoniu Mihai <antoniu@temian.ro>
+Website: https://edenx.dev
 
 Usage:
   eden [options] [file ...]
 
 Options:
-  --theme NAME   Set colour theme: default, green, dark, light, monokai
+  --theme NAME   Set colour theme: default, monokai, ocean, solarized, rose, green, dark, light
   -r, --readonly Open files in read-only mode
 
 Keyboard Shortcuts:
@@ -66,15 +70,13 @@ Syntax Highlighting:
 
 Config (~/.config/eden/config.json):
   {"theme": "dark", "tab_width": 4, "expand_tabs": true}
-
-Website: https://edenx.dev
 `
 
 func main() {
-	themeFlag := flag.String("theme", "", "Theme: default, green, dark, light, monokai")
+	themeFlag := flag.String("theme", "", "Theme: default, monokai, ocean, solarized, rose, green, dark, light")
 	readonlyFlag := flag.Bool("r", false, "Open files in read-only mode")
 	flag.BoolVar(readonlyFlag, "readonly", false, "Open files in read-only mode")
-	flag.Usage = func() { fmt.Print(helpText) }
+	flag.Usage = func() { fmt.Printf(helpText, Version) }
 	flag.Parse()
 
 	cfg, err := config.Load()

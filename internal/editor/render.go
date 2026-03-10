@@ -56,6 +56,11 @@ func (e *Editor) drawTabBar(w int) {
 	t := e.theme
 	x := 0
 	for i, buf := range e.buffers {
+		// Separator before every tab except the first, always at a fixed position.
+		if i > 0 && x < w {
+			e.screen.SetContent(x, 0, '│', nil, tcell.StyleDefault.Background(t.TabBg).Foreground(t.TabFg))
+			x++
+		}
 		label := " " + buf.TabLabel() + " "
 		bg, fg := t.TabBg, t.TabFg
 		if i == e.activeIdx {
@@ -67,11 +72,6 @@ func (e *Editor) drawTabBar(w int) {
 				break
 			}
 			e.screen.SetContent(x, 0, ch, nil, st)
-			x++
-		}
-		// Separator between inactive tabs.
-		if x < w && i != e.activeIdx {
-			e.screen.SetContent(x, 0, '│', nil, tcell.StyleDefault.Background(t.TabBg).Foreground(t.TabFg))
 			x++
 		}
 	}
@@ -432,7 +432,7 @@ func drawRow(s tcell.Screen, x, y, w int, text string, st tcell.Style) {
 
 // helpLines is the static content shown in the help overlay.
 var helpLines = []string{
-	"  EdenX — Keyboard Shortcuts",
+	"  EdenX v0.6.0 — Keyboard Shortcuts",
 	"  Author: Temian Antoniu Mihai <antoniu@temian.ro>",
 	"",
 	"  FILE",
@@ -474,7 +474,7 @@ var helpLines = []string{
 	"",
 	"  VIEW",
 	"    F1              This help",
-	"    F2              Cycle theme",
+	"    F2              Cycle theme (default, monokai, ocean, solarized, rose, green, dark, light)",
 	"    F3              Toggle read-only mode",
 	"",
 	"  SYNTAX HIGHLIGHTING",

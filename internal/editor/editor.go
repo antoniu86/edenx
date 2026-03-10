@@ -280,7 +280,7 @@ func (e *Editor) writePlain(buf *Buffer) {
 		e.setError("Save failed: " + err.Error())
 		return
 	}
-	buf.modified = false
+	buf.MarkSaved()
 	e.setStatus("Saved: " + filepath.Base(buf.filename))
 }
 
@@ -294,7 +294,7 @@ func (e *Editor) writeEncrypted(buf *Buffer, password string) {
 		e.setError("Save failed: " + err.Error())
 		return
 	}
-	buf.modified = false
+	buf.MarkSaved()
 	buf.encrypted = true
 	e.setStatus("Saved encrypted: " + filepath.Base(buf.filename))
 }

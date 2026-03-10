@@ -1,7 +1,7 @@
 # EdenX Makefile
 BINARY   = eden
 MODULE   = github.com/edenx/eden
-VERSION  = 0.1.0
+VERSION  = 0.6.0
 LDFLAGS  = -ldflags "-X main.Version=$(VERSION) -s -w"
 
 .PHONY: all build install uninstall deb release clean

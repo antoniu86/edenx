@@ -47,13 +47,14 @@ type Buffer struct {
 	selAnchor Pos
 
 	// Undo / Redo
-	undoStack []snapshot
-	redoStack []snapshot
+	undoStack  []snapshot
+	redoStack  []snapshot
+	savedLines []string // lines at last save, for clean-undo detection
 }
 
 // NewBuffer returns a Buffer with a single empty line.
 func NewBuffer() *Buffer {
-	return &Buffer{lines: []string{""}}
+	return &Buffer{lines: []string{""}, savedLines: []string{""}}
 }
 
 // --- Read-only accessors used by render.go ---
@@ -215,6 +216,28 @@ func (b *Buffer) SetContent(s string) {
 	b.selActive = false
 	b.undoStack = nil
 	b.redoStack = nil
+	b.savedLines = make([]string, len(b.lines))
+	copy(b.savedLines, b.lines)
+}
+
+// MarkSaved records the current lines as the saved state, used for clean-undo detection.
+func (b *Buffer) MarkSaved() {
+	b.savedLines = make([]string, len(b.lines))
+	copy(b.savedLines, b.lines)
+	b.modified = false
+}
+
+// matchesSaved reports whether the current lines match the saved state.
+func (b *Buffer) matchesSaved() bool {
+	if len(b.lines) != len(b.savedLines) {
+		return false
+	}
+	for i := range b.lines {
+		if b.lines[i] != b.savedLines[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // SetCursor moves the cursor, clamping to valid bounds.
@@ -302,7 +325,7 @@ func (b *Buffer) Undo() bool {
 	b.lines = make([]string, len(s.lines))
 	copy(b.lines, s.lines)
 	b.cursor = s.cursor
-	b.modified = true
+	b.modified = !b.matchesSaved()
 	b.selActive = false
 	return true
 }

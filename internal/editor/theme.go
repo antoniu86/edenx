@@ -61,7 +61,7 @@ func (t Theme) synColor(tok SynToken) tcell.Color {
 }
 
 // ThemeOrder defines the F2 cycle order.
-var ThemeOrder = []string{"default", "green", "dark", "light", "monokai"}
+var ThemeOrder = []string{"default", "monokai", "ocean", "solarized", "rose", "green", "dark", "light"}
 
 var themes = map[string]Theme{
 	"default": {
@@ -153,6 +153,66 @@ var themes = map[string]Theme{
 		SynBuiltin: tcell.NewRGBColor(166, 226, 46), SynString: tcell.NewRGBColor(230, 219, 116),
 		SynComment: tcell.NewRGBColor(117, 113, 94), SynNumber: tcell.NewRGBColor(174, 129, 255),
 		BracketBg: tcell.NewRGBColor(80, 90, 40), BracketFg: tcell.NewRGBColor(248, 248, 242),
+	},
+
+	// ocean — deep blue, easy on the eyes
+	"ocean": {
+		Name: "ocean",
+		EditorBg: tcell.NewRGBColor(15, 25, 45), EditorFg: tcell.NewRGBColor(200, 215, 235),
+		LineNumBg: tcell.NewRGBColor(10, 18, 35), LineNumFg: tcell.NewRGBColor(70, 100, 140),
+		StatusBg: tcell.NewRGBColor(20, 45, 75), StatusFg: tcell.NewRGBColor(180, 210, 240),
+		TabBg: tcell.NewRGBColor(10, 18, 35), TabFg: tcell.NewRGBColor(70, 100, 140),
+		ActiveTabBg: tcell.NewRGBColor(20, 45, 75), ActiveTabFg: tcell.NewRGBColor(180, 210, 240),
+		SelectBg: tcell.NewRGBColor(30, 70, 120), SelectFg: tcell.NewRGBColor(220, 235, 255),
+		SearchBg: tcell.NewRGBColor(20, 70, 90), SearchFg: tcell.NewRGBColor(200, 240, 255),
+		CurMatchBg: tcell.NewRGBColor(40, 150, 180), CurMatchFg: tcell.NewRGBColor(10, 18, 35),
+		NavBg: tcell.NewRGBColor(10, 18, 35), NavFg: tcell.NewRGBColor(200, 215, 235),
+		NavSelBg: tcell.NewRGBColor(30, 70, 120), NavSelFg: tcell.NewRGBColor(220, 235, 255),
+		NavBorderFg: tcell.NewRGBColor(50, 80, 120),
+		SynKeyword: tcell.NewRGBColor(100, 175, 255), SynType: tcell.NewRGBColor(80, 210, 200),
+		SynBuiltin: tcell.NewRGBColor(130, 200, 255), SynString: tcell.NewRGBColor(150, 220, 160),
+		SynComment: tcell.NewRGBColor(70, 100, 140), SynNumber: tcell.NewRGBColor(180, 160, 255),
+		BracketBg: tcell.NewRGBColor(25, 60, 100), BracketFg: tcell.NewRGBColor(130, 200, 255),
+	},
+
+	// solarized — warm dark background, muted palette
+	"solarized": {
+		Name: "solarized",
+		EditorBg: tcell.NewRGBColor(0, 43, 54), EditorFg: tcell.NewRGBColor(131, 148, 150),
+		LineNumBg: tcell.NewRGBColor(0, 33, 43), LineNumFg: tcell.NewRGBColor(88, 110, 117),
+		StatusBg: tcell.NewRGBColor(7, 54, 66), StatusFg: tcell.NewRGBColor(147, 161, 161),
+		TabBg: tcell.NewRGBColor(0, 33, 43), TabFg: tcell.NewRGBColor(88, 110, 117),
+		ActiveTabBg: tcell.NewRGBColor(7, 54, 66), ActiveTabFg: tcell.NewRGBColor(147, 161, 161),
+		SelectBg: tcell.NewRGBColor(7, 54, 66), SelectFg: tcell.NewRGBColor(253, 246, 227),
+		SearchBg: tcell.NewRGBColor(88, 70, 0), SearchFg: tcell.NewRGBColor(253, 246, 227),
+		CurMatchBg: tcell.NewRGBColor(181, 137, 0), CurMatchFg: tcell.NewRGBColor(0, 43, 54),
+		NavBg: tcell.NewRGBColor(0, 33, 43), NavFg: tcell.NewRGBColor(131, 148, 150),
+		NavSelBg: tcell.NewRGBColor(7, 54, 66), NavSelFg: tcell.NewRGBColor(253, 246, 227),
+		NavBorderFg: tcell.NewRGBColor(88, 110, 117),
+		SynKeyword: tcell.NewRGBColor(133, 153, 0), SynType: tcell.NewRGBColor(42, 161, 152),
+		SynBuiltin: tcell.NewRGBColor(108, 113, 196), SynString: tcell.NewRGBColor(203, 75, 22),
+		SynComment: tcell.NewRGBColor(88, 110, 117), SynNumber: tcell.NewRGBColor(181, 137, 0),
+		BracketBg: tcell.NewRGBColor(7, 64, 76), BracketFg: tcell.NewRGBColor(42, 161, 152),
+	},
+
+	// rose — warm dark with rose/mauve tones, gentle contrast
+	"rose": {
+		Name: "rose",
+		EditorBg: tcell.NewRGBColor(35, 28, 35), EditorFg: tcell.NewRGBColor(220, 205, 215),
+		LineNumBg: tcell.NewRGBColor(28, 22, 28), LineNumFg: tcell.NewRGBColor(120, 95, 110),
+		StatusBg: tcell.NewRGBColor(60, 45, 58), StatusFg: tcell.NewRGBColor(220, 205, 215),
+		TabBg: tcell.NewRGBColor(28, 22, 28), TabFg: tcell.NewRGBColor(120, 95, 110),
+		ActiveTabBg: tcell.NewRGBColor(60, 45, 58), ActiveTabFg: tcell.NewRGBColor(220, 205, 215),
+		SelectBg: tcell.NewRGBColor(100, 65, 90), SelectFg: tcell.NewRGBColor(240, 225, 235),
+		SearchBg: tcell.NewRGBColor(90, 55, 40), SearchFg: tcell.NewRGBColor(240, 220, 210),
+		CurMatchBg: tcell.NewRGBColor(200, 120, 140), CurMatchFg: tcell.NewRGBColor(35, 28, 35),
+		NavBg: tcell.NewRGBColor(28, 22, 28), NavFg: tcell.NewRGBColor(220, 205, 215),
+		NavSelBg: tcell.NewRGBColor(100, 65, 90), NavSelFg: tcell.NewRGBColor(240, 225, 235),
+		NavBorderFg: tcell.NewRGBColor(100, 75, 95),
+		SynKeyword: tcell.NewRGBColor(235, 130, 160), SynType: tcell.NewRGBColor(180, 160, 230),
+		SynBuiltin: tcell.NewRGBColor(220, 170, 120), SynString: tcell.NewRGBColor(160, 210, 160),
+		SynComment: tcell.NewRGBColor(120, 95, 110), SynNumber: tcell.NewRGBColor(200, 160, 230),
+		BracketBg: tcell.NewRGBColor(80, 50, 70), BracketFg: tcell.NewRGBColor(235, 130, 160),
 	},
 }
 
