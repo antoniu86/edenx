@@ -434,6 +434,7 @@ func drawRow(s tcell.Screen, x, y, w int, text string, st tcell.Style) {
 var helpLines = []string{
 	"  EdenX v0.6.0 — Keyboard Shortcuts",
 	"  Author: Temian Antoniu Mihai <antoniu@temian.ro>",
+	"  Website: https://edenx.dev",
 	"",
 	"  FILE",
 	"    Ctrl+S          Save",

@@ -3,7 +3,7 @@ Version: 0.6.0
 Section: editors
 Priority: optional
 Architecture: amd64
-Maintainer: EdenX <hello@edenx.dev>
+Maintainer: EdenX <antoniu@temian.ro>
 Homepage: https://edenx.dev
 Description: EdenX terminal text editor
  A fast, minimal terminal text editor with support for encrypted files.
